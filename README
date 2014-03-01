@@ -1,0 +1,68 @@
+[Description]
+This is an implementation of Cutting Payload (CP) method, a complementary method of TCP to maintain self-clocking and achieve accurate and rapid packet loss notification. 
+
+The implementation is based on Linux 2.6.38.3. The detailed information of CP is described in the paper "Catch the Whole Lot in an Action: Rapid Precise Packet Loss Notification in Data Centers", presented at NSDI 2014. 
+
+The paper is available online at 
+http://qos.cs.tsinghua.edu.cn/~chengp/papers/CP_NSDI2014_PAPER.pdf
+
+=========================================================================================
+[Authors]
+Peng Cheng, Tsinghua University
+
+=========================================================================================
+[How to Apply Patch]
+
+(1) Download the patch from 
+
+(2) Download the Linux Kernel 2.6.38.3
+	#wget http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.38.3.tar.bz2
+	#tar jxvf linux-2.6.38.3.tar.bz2
+
+(3) Install the patch
+	#cp cp-2.6.38.3-v1.0.patch linux-2.6.38.3
+	#cd linux-2.6.38.3
+	#patch -p1 < cp-2.6.38.3-v1.0.patch
+
+(4) Compile and install the kernel. CP doesn't need any special kernel configuration. It should be notice that TCP_TEST_RETRANS is added just for testing, it is not necessary to open it. You can check it as follows:   
+	#make menuconfig
+	|-- Networking support
+		|-- Networking options
+			|-- []TCP: for test (close it)
+
+=========================================================================================
+[How to Enable CP]
+
+(1) Basic Settings for CP:
+	#sysctl -w net.ipv4.tcp_congestion_control=reno
+	#sysctl -w net.ipv4.tcp_sack=1
+	#sysctl -w net.ipv4.tcp_cp=1
+	#sysctl -w net.ipv4.tcp_pack=1
+	
+(2) Optional Settings:	
+	<1> Change the send and receive buffer memory for achieving 1 Gbps throughput. 8MB is large enough for both buffer. You can reduce them depending on your experimental environment:
+	#sysctl -w net.ipv4.tcp_wmem="8388608 8388608 16777216"
+	#sysctl -w net.ipv4.tcp_rmem="8388608 8388608 16777216"
+	
+	<2> DSACK (1-Open 0-Close):
+	#sysctl -w net.ipv4.tcp_dsack=1 
+	
+	<3> DCTCP (tcp_dctcp_enable: 1-Open 0-Close):
+	#sysctl -w net.ipv4.tcp_ecn=1
+	#sysctl -w net.ipv4.tcp_dctcp_enable=1
+	#sysctl -w net.ipv4.tcp_dctcp_shift_g=4
+	
+	<4> Delayed ACK (1-Open 0-Close):
+	#sysctl -w net.ipv4.tcp_delayed_ack=0
+	
+	<5> Set RTO_MIN (ms):
+	#sysctl -w net.ipv4.tcp_rto_min=200
+	
+	<6> Set the number of tolerable out-of-order packets.(tcp_disorder_max: 1-infinity 0-tcp_reordering):
+	#sysctl -w net.ipv4.tcp_disorder_max=0
+	#sysctl -w net.ipv4.tcp_reordering=3
+
+=========================================================================================
+[Changelog]
+
+2014 Feb. 28 - v1.0
