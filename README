@@ -24,11 +24,7 @@ Peng Cheng, Tsinghua University
 	#cd linux-2.6.38.3
 	#patch -p1 < cp-2.6.38.3-v1.0.patch
 
-(4) Compile and install the kernel. CP doesn't need any special kernel configuration. It should be notice that TCP_TEST_RETRANS is added just for testing, it is not necessary to open it. You can check it as follows:   
-	#make menuconfig
-	|-- Networking support
-		|-- Networking options
-			|-- []TCP: for test (close it)
+(4) Compile and install the kernel. CP doesn't need any special kernel configuration.
 
 =========================================================================================
 [How to Enable CP]
@@ -66,3 +62,4 @@ Peng Cheng, Tsinghua University
 [Changelog]
 
 2014 Feb. 28 - v1.0
+2014 Mar. 20 - v1.1 - Add comments for reading. Delete all test code.
